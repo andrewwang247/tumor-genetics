@@ -10,6 +10,7 @@ from itertools import combinations, product
 from math import isnan
 from timeit import default_timer as timer
 from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import cpu_count
 from pandas import DataFrame, read_csv  # type: ignore
 import numpy as np  # type: ignore
 from matplotlib import pyplot as plt  # type: ignore
@@ -71,9 +72,16 @@ def scatter_plot(name_i: str, name_j: str,
     assert len(gene_i) == len(gene_j)
     num_cancers = len(gene_i)
     plt.scatter(gene_i, gene_j, c='#fa7c69')
+    poly = np.polyfit(gene_i, gene_j, 1)
+    reg = np.poly1d(poly)
+    equation = f'y = {round(poly[0], 3)} x ' + \
+        (f'+ {round(poly[1], 3)}' if poly[1]
+         >= 0 else f'- {abs(round(poly[1], 3))}')
+    plt.plot(gene_i, reg(gene_i), label=equation, color='#721b75')
     plt.xlabel(f'{name_i} Percent Difference')
     plt.ylabel(f'{name_j} Percent Difference')
     plt.title(f'{name_i} And {name_j} Over {num_cancers} Cancers')
+    plt.legend(loc='best')
     plt.savefig(f'{name_i}_{name_j}.png')
     plt.close()
 
@@ -102,7 +110,7 @@ def main():
     write_gene_csv('pearson_correlation.csv', correlation, genes)
     write_gene_csv('matching.csv', matching, genes)
     print('Generating scatter plots...')
-    with ProcessPoolExecutor(max_workers=10) as pool:
+    with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
         for i, j in combinations(range(num_genes), 2):
             pool.submit(scatter_plot,
                         genes[i],
