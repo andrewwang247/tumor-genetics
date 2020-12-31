@@ -21,4 +21,4 @@ venv3/
 # Generated files
 *.png
 *.csv
-!data.csv
+!*data.csv
