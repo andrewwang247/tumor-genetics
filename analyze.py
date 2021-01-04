@@ -68,7 +68,7 @@ def write_gene_csv(fname: str, data: np.ndarray, genes: List[str]):
 def scatter_plot(name_i: str, name_j: str,
                  gene_i: List[float], gene_j: List[float]):
     """Draw a scatter plot for the two genes from their data."""
-    plt.figure()
+    plt.figure(figsize=(8, 6), dpi=250)
     assert len(gene_i) == len(gene_j)
     num_cancers = len(gene_i)
     plt.scatter(gene_i, gene_j, c='#fa7c69')
